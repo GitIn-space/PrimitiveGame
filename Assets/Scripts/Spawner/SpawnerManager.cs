@@ -8,13 +8,12 @@ public class SpawnerManager : MonoBehaviour
     [SerializeField] private float spawnDelay = 0;
 
     private List<Spawner> spawners = new List<Spawner>();
-    private Coroutine spawnRoutine;
 
     private void Awake()
     {
         spawners.AddRange(GetComponentsInChildren<Spawner>());
 
-        spawnRoutine = StartCoroutine(Spawn());
+        StartCoroutine(Spawn());
     }
 
     private IEnumerator Spawn()
@@ -23,7 +22,7 @@ public class SpawnerManager : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnDelay);
             if(spawners.Any(each => !each.Spawned))
-                spawners.First(each => !each.Spawned).Spawn();
+                spawners.Where(each => !each.Spawned).OrderBy(each => Random.value).First().Spawn();
         }
     }
 }

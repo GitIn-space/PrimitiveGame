@@ -12,20 +12,18 @@ public class Spawner : MonoBehaviour
             return spawned;
         }
 
-        private set
+        set
         {
             spawned = value;
         }
     }
 
-    public GameObject Spawn()
+    public void Spawn()
     {
         if (!spawned)
         {
             spawned = true;
-            return Instantiate(obj, transform.position, Quaternion.identity);
+            Instantiate(obj, transform.position, Quaternion.identity).GetComponent<Coin>().Callback = this;
         }
-
-        return null;
     }
 }
