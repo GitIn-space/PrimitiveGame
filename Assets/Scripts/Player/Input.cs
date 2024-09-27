@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,20 +15,22 @@ public class Input : MonoBehaviour
     private Pointer pointer;
     private Camera cam;
     private Rigidbody2D tpBulletObj;
+    private bool gravity = true;
 
     private void Move()
     {
-        Vector3 velocity = new Vector3();
+        Vector3 velocity = new Vector3();//body.velocity;
 
         if (dir != 0)
-            velocity += transform.right * dir * speed;
+            velocity = transform.right * dir * speed + new Vector3(0, body.velocity.y, 0);
 
         body.velocity = velocity;
     }
 
     private void Gravity()
     {
-        body.velocity += new Vector2(0, -1) * gravityscale;
+        if(gravity)
+            body.velocity += new Vector2(0, -1) * gravityscale;
     }
 
     private void Awake()
@@ -58,6 +59,8 @@ public class Input : MonoBehaviour
     {
         if (input.isPressed)
         {
+            gravity = false;
+
             body.isKinematic = true;
             sprite.enabled = false;
             collider.enabled = false;
@@ -73,11 +76,14 @@ public class Input : MonoBehaviour
         }
         else
         {
+            gravity = true;
+
             body.isKinematic = false;
             sprite.enabled = true;
             collider.enabled = true;
 
             transform.position = tpBulletObj.transform.position;
+            body.velocity = Vector3.zero;
             Destroy(tpBulletObj.gameObject);
         }
     }
