@@ -16,4 +16,15 @@ public class CoinCounter : MonoBehaviour
         coins++;
         text.text = "Coins: " + coins;
     }
+
+    public bool Debit(int amount)
+    {
+        if (coins - amount >= 0)
+        {
+            coins -= amount;
+            text.text = "Coins: " + coins;
+            return true;
+        }
+        return false;
+    }
 }

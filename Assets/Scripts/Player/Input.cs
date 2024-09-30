@@ -19,7 +19,7 @@ public class Input : MonoBehaviour
 
     private void Move()
     {
-        Vector3 velocity = new Vector3();//body.velocity;
+        Vector3 velocity = body.velocity;
 
         if (dir != 0)
             velocity = transform.right * dir * speed + new Vector3(0, body.velocity.y, 0);

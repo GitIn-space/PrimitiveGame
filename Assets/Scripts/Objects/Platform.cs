@@ -7,54 +7,72 @@ public class Platform : MonoBehaviour
     [SerializeField] private List<Transform> patrolPoints = new List<Transform>();
     [SerializeField] private float speed = 0;
     [SerializeField] private float minDist = 0.5f;
-    [SerializeField] private float colourCycle = 3f;
+    [SerializeField] private float fallDelay = 3;
 
     private int index = 0;
     private Rigidbody2D body;
-    private SpriteRenderer sprite;
-
-    // move and explode
+    private bool falling = true;
+    private Coroutine fallRoutine;
 
     private void Awake()
     {
         body = gameObject.GetComponent<Rigidbody2D>();
-        sprite = gameObject.GetComponent<SpriteRenderer>();
 
-        body.velocity = (patrolPoints[index].position - transform.position).normalized * speed;
-
-        StartCoroutine(Explode());
+        body.velocity = (patrolPoints[index].position - transform.position).normalized * speed * 2;
     }
 
     private void FixedUpdate()
     {
-        Vector3 dist = patrolPoints[index].position - transform.position;
-
-        if ((dist.magnitude > minDist))
-            return;
-        else
-            if (++index >= patrolPoints.Count)
-                index = 0;
-
-        dist = patrolPoints[index].position - transform.position;
-        body.velocity = dist.normalized * speed;
+        Move();
     }
 
-    private IEnumerator Explode()
+    private IEnumerator Fall()
     {
-        float r = 0;
-        while (true)
+        yield return new WaitForSeconds(fallDelay);
+
+        Vector3 dist = patrolPoints[index].position - transform.position;
+
+        if (++index >= patrolPoints.Count)
+            index = 0;
+
+        body.isKinematic = false;
+
+        dist = patrolPoints[index].position - transform.position;
+        body.velocity = dist.normalized * speed * 2;
+
+        falling = true;
+
+        fallRoutine = null;
+    }
+
+    private void Move()
+    {
+        if (!falling)
         {
-            yield return new WaitForSeconds(255/colourCycle);
+            Vector3 dist = patrolPoints[index].position - transform.position;
 
-            r += (255 / colourCycle);
-
-            if(r > 255)
+            if ((dist.magnitude > minDist))
+                return;
+            else if (dist.magnitude < minDist && fallRoutine == null)
             {
-                //make boom
-                r %= 255;
+                body.velocity = Vector2.zero;
+                body.isKinematic = true;
+                fallRoutine = StartCoroutine(Fall());
             }
+        }
+        else
+        {
+            Vector3 dist = patrolPoints[index].position - transform.position;
 
-            sprite.color = new Color(r, 0, 0);
+            if (dist.magnitude > minDist)
+                return;
+            else if (++index >= patrolPoints.Count)
+                index = 0;
+
+            dist = patrolPoints[index].position - transform.position;
+            body.velocity = dist.normalized * speed / 2;
+
+            falling = false;
         }
     }
 }
